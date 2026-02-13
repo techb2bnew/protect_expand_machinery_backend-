@@ -474,6 +474,10 @@ export const sendTicketSupportTypeEmail = async (ticket, customer) => {
             </p>
             
             <p style="color: #374151; font-size: 15px; line-height: 1.8; margin: 8px 0;">
+              <strong style="color: #1f2937;">* Company Name:</strong> ${customer.company_name || 'N/A'}
+            </p>
+            
+            <p style="color: #374151; font-size: 15px; line-height: 1.8; margin: 8px 0;">
               <strong style="color: #1f2937;">* Issue Description:</strong>
             </p>
             <div style="background-color: #ffffff; padding: 12px; border-radius: 6px; margin: 8px 0 16px 0; border: 1px solid #e5e7eb;">
