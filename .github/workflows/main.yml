@@ -11,9 +11,11 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Deployment Started
       - name: Deployment Started
         run: |
           echo "🚀 Backend deployment started at $(date)"
@@ -21,12 +23,14 @@ jobs:
           echo "Branch: ${{ github.ref_name }}"
           echo "Commit: ${{ github.sha }}"
 
+      # Step 3: Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20.15.1'
           cache: 'npm'
 
+      # Step 4: Install dependencies locally
       - name: Install dependencies
         run: |
           echo "📦 Installing backend dependencies..."
@@ -35,6 +39,7 @@ jobs:
         env:
           NPM_CONFIG_IGNORE_SCRIPTS: true
 
+      # Step 5: Build application (if package.json has build)
       - name: Build application (if needed)
         run: |
           echo "🔨 Checking for build requirements..."
@@ -48,53 +53,62 @@ jobs:
         env:
           NODE_ENV: production
 
+      # Step 6: Prepare deployment files
       - name: Prepare deployment files
         run: |
           echo "🧹 Cleaning up files for deployment..."
           rm -rf .git node_modules/.cache
           echo "✅ Backend deployment files ready"
 
+      # Step 7: Fix remote permissions
       - name: Fix remote permissions
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY_LIVE }}
+          port: 62987
           script: |
             echo "🔐 Fixing remote permissions..."
             sudo chown -R ${{ secrets.SERVER_USER }}:${{ secrets.SERVER_USER }} /home/ec2-user/Expand_machinery_backend/
             sudo chmod -R 755 /home/ec2-user/Expand_machinery_backend/
             echo "✅ Permissions fixed successfully"
 
+      # Step 8: Deploy via Rsync
       - name: Deploy via Rsync
         uses: easingthemes/ssh-deploy@main
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY_LIVE }}
           REMOTE_HOST: ${{ secrets.SERVER_IP }}
           REMOTE_USER: ${{ secrets.SERVER_USER }}
+          REMOTE_PORT: 62987
           TARGET: /home/ec2-user/Expand_machinery_backend/
           ARGS: "-rlgoDzvc --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r --no-perms --no-owner --no-group --exclude=node_modules --exclude=.git --exclude=.next --exclude=dist"
           BEFORE_RSYNC: echo "🚀 Starting file deployment to server..."
           AFTER_RSYNC: echo "✅ Files deployed successfully to server!"
 
+      # Step 9: Install server dependencies
       - name: Install server dependencies
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY_LIVE }}
+          port: 62987
           script: |
             echo "📦 Installing server dependencies..."
             cd /home/ec2-user/Expand_machinery_backend/
             npm ci --production --ignore-scripts
             echo "✅ Server dependencies installed successfully"
 
+      # Step 10: Restart backend application
       - name: Restart backend application
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY_LIVE }}
+          port: 62987
           script: |
             echo "🔄 Restarting backend application..."
             cd /home/ec2-user/Expand_machinery_backend/
@@ -102,12 +116,14 @@ jobs:
             pm2 save
             echo "✅ Backend application restarted successfully"
 
+      # Step 11: Health check
       - name: Health check
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY_LIVE }}
+          port: 62987
           script: |
             echo "🏥 Performing health check..."
             sleep 5
