@@ -1,0 +1,120 @@
+name: Deploy Backend Application
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deployment Started
+        run: |
+          echo "🚀 Backend deployment started at $(date)"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.15.1'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          echo "📦 Installing backend dependencies..."
+          npm ci --ignore-scripts
+          echo "✅ Backend dependencies installed successfully"
+        env:
+          NPM_CONFIG_IGNORE_SCRIPTS: true
+
+      - name: Build application (if needed)
+        run: |
+          echo "🔨 Checking for build requirements..."
+          if [ -f "package.json" ] && grep -q '"build"' package.json; then
+            echo "📦 Build script found, running build..."
+            npm run build
+            echo "✅ Build completed successfully"
+          else
+            echo "⏭️ No build script found, skipping build step"
+          fi
+        env:
+          NODE_ENV: production
+
+      - name: Prepare deployment files
+        run: |
+          echo "🧹 Cleaning up files for deployment..."
+          rm -rf .git node_modules/.cache
+          echo "✅ Backend deployment files ready"
+
+      - name: Fix remote permissions
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY_LIVE }}
+          script: |
+            echo "🔐 Fixing remote permissions..."
+            sudo chown -R ${{ secrets.SERVER_USER }}:${{ secrets.SERVER_USER }} /home/ec2-user/Expand_machinery_backend/
+            sudo chmod -R 755 /home/ec2-user/Expand_machinery_backend/
+            echo "✅ Permissions fixed successfully"
+
+      - name: Deploy via Rsync
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY_LIVE }}
+          REMOTE_HOST: ${{ secrets.SERVER_IP }}
+          REMOTE_USER: ${{ secrets.SERVER_USER }}
+          TARGET: /home/ec2-user/Expand_machinery_backend/
+          ARGS: "-rlgoDzvc --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r --no-perms --no-owner --no-group --exclude=node_modules --exclude=.git --exclude=.next --exclude=dist"
+          BEFORE_RSYNC: echo "🚀 Starting file deployment to server..."
+          AFTER_RSYNC: echo "✅ Files deployed successfully to server!"
+
+      - name: Install server dependencies
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY_LIVE }}
+          script: |
+            echo "📦 Installing server dependencies..."
+            cd /home/ec2-user/Expand_machinery_backend/
+            npm ci --production --ignore-scripts
+            echo "✅ Server dependencies installed successfully"
+
+      - name: Restart backend application
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY_LIVE }}
+          script: |
+            echo "🔄 Restarting backend application..."
+            cd /home/ec2-user/Expand_machinery_backend/
+            pm2 reload backendexpend || pm2 start "npm run start" --name backendexpend
+            pm2 save
+            echo "✅ Backend application restarted successfully"
+
+      - name: Health check
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY_LIVE }}
+          script: |
+            echo "🏥 Performing health check..."
+            sleep 5
+            pm2 status backendexpend
+            echo "🎉 Backend deployment completed successfully!"
+            echo "📊 Deployment Summary:"
+            echo "  - Repository: ${{ github.repository }}"
+            echo "  - Branch: ${{ github.ref_name }}"
+            echo "  - Commit: ${{ github.sha }}"
+            echo "  - Deployed at: $(date)"
