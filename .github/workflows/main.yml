@@ -37,7 +37,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY_LIVE }}
           REMOTE_HOST: ${{ secrets.SERVER_IP }}
           REMOTE_USER: ${{ secrets.SERVER_USER }}
-          REMOTE_PORT: 62987
+          REMOTE_PORT: 22
           TARGET: /var/www/html/expand_machinery_backend/
           EXCLUDE: ".git"
 
@@ -48,7 +48,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY_LIVE }}
-          port: 62987
+          port: 22
           script: |
             echo "🔄 Restarting backend application..."
             cd /var/www/html/expand_machinery_backend/
