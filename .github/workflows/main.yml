@@ -39,6 +39,7 @@ jobs:
           REMOTE_USER: ${{ secrets.SERVER_USER }}
           REMOTE_PORT: 62987
           TARGET: /var/www/html/expand_machinery_backend/
+          EXCLUDE: ".git"
 
       # Step 10: Restart backend application
       - name: Restart backend application
