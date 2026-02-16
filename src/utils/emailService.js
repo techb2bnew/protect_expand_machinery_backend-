@@ -472,6 +472,10 @@ export const sendTicketSupportTypeEmail = async (ticket, customer) => {
             <p style="color: #374151; font-size: 15px; line-height: 1.8; margin: 8px 0;">
               <strong style="color: #1f2937;">* Customer Email:</strong> ${customer.email || 'N/A'}
             </p>
+
+            <p style="color: #374151; font-size: 15px; line-height: 1.8; margin: 8px 0;">
+              <strong style="color: #1f2937;">* Customer Phone:</strong> ${customer.phone || 'N/A'}
+            </p>
             
             <p style="color: #374151; font-size: 15px; line-height: 1.8; margin: 8px 0;">
               <strong style="color: #1f2937;">* Company Name:</strong> ${customer.company_name || 'N/A'}
@@ -590,6 +594,10 @@ export const sendTicketAdminNotify = async (ticket, customer) => {
             </p>
             
             <p style="color: #374151; font-size: 15px; line-height: 1.8; margin: 8px 0;">
+              <strong style="color: #1f2937;">* Customer Phone:</strong> ${customer.phone || 'N/A'}
+            </p>
+
+            <p style="color: #374151; font-size: 15px; line-height: 1.8; margin: 8px 0;">
               <strong style="color: #1f2937;">* Issue Description:</strong>
             </p>
             <div style="background-color: #ffffff; padding: 12px; border-radius: 6px; margin: 8px 0 16px 0; border: 1px solid #e5e7eb;">
@@ -675,16 +683,16 @@ export const sendCustomerWelcomeEmail = async ({ name, email, phone, password })
           </td>
         </tr>
         ` : ''}
-        <tr>
-          <td style="padding:0 24px 24px;">
-            <h3 style="margin:0 0 16px;color:#1f2937;font-size:18px;font-weight:600;">🛠️ How Our Support Works</h3>
-            <ul style="margin:0 0 24px;padding-left:20px;color:#1f2937;font-size:15px;line-height:1.8;">
-              <li style="margin-bottom:10px;">🎫 Create a ticket anytime you need help</li>
-              <li style="margin-bottom:10px;">💬 Chat with our support agents for quick assistance</li>
-              <li style="margin-bottom:10px;">📊 Track ticket status (Pending, In Progress, Resolved, Closed)</li>
-            </ul>
-          </td>
-        </tr>
+        // <tr>
+        //   <td style="padding:0 24px 24px;">
+        //     <h3 style="margin:0 0 16px;color:#1f2937;font-size:18px;font-weight:600;">🛠️ How Our Support Works</h3>
+        //     <ul style="margin:0 0 24px;padding-left:20px;color:#1f2937;font-size:15px;line-height:1.8;">
+        //       <li style="margin-bottom:10px;">🎫 Create a ticket anytime you need help</li>
+        //       <li style="margin-bottom:10px;">💬 Chat with our support agents for quick assistance</li>
+        //       <li style="margin-bottom:10px;">📊 Track ticket status (Pending, In Progress, Resolved, Closed)</li>
+        //     </ul>
+        //   </td>
+        // </tr>
         <tr>
           <td style="padding:0 24px 24px;">
             <h3 style="margin:0 0 16px;color:#1f2937;font-size:18px;font-weight:600;">📌 What You Can Do Next</h3>
