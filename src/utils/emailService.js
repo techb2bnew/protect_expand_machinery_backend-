@@ -683,16 +683,6 @@ export const sendCustomerWelcomeEmail = async ({ name, email, phone, password })
           </td>
         </tr>
         ` : ''}
-        // <tr>
-        //   <td style="padding:0 24px 24px;">
-        //     <h3 style="margin:0 0 16px;color:#1f2937;font-size:18px;font-weight:600;">🛠️ How Our Support Works</h3>
-        //     <ul style="margin:0 0 24px;padding-left:20px;color:#1f2937;font-size:15px;line-height:1.8;">
-        //       <li style="margin-bottom:10px;">🎫 Create a ticket anytime you need help</li>
-        //       <li style="margin-bottom:10px;">💬 Chat with our support agents for quick assistance</li>
-        //       <li style="margin-bottom:10px;">📊 Track ticket status (Pending, In Progress, Resolved, Closed)</li>
-        //     </ul>
-        //   </td>
-        // </tr>
         <tr>
           <td style="padding:0 24px 24px;">
             <h3 style="margin:0 0 16px;color:#1f2937;font-size:18px;font-weight:600;">📌 What You Can Do Next</h3>
